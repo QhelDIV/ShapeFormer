@@ -4,7 +4,6 @@
 
 https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-bd53-8662ebd669fe.mp4
 
-
 ### [Project Page](https://shapeformer.github.io/) | [Paper (ArXiv)](https://arxiv.org/pdf/)
 <!-- | [Pre-trained Models](https://www.dropbox.com/s/we886b1fqf2qyrs/ckpts_ICT.zip?dl=0) :fire: |  -->
 
@@ -17,7 +16,7 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 [Danny Cohen-Or](https://danielcohenor.com/)<sup>4</sup>,
 [Hui Huang](https://vcc.tech/~huihuang)<sup>1†</sup> <br>
 <sup>1</sup>Shenzhen University, <sup>2</sup>University College London, <sup>3</sup>Hebrew University of Jerusalem, <sup>4</sup>Tel Aviv University
-�
+
 
 ## :hourglass_flowing_sand: Code is coming soon!
 - [ ] Release code
@@ -35,6 +34,8 @@ If you find our work useful for your research, please consider citing the follow
   year      = {2021},
 }
 ```
+
+## 
 
 ## :email: Contact
 
