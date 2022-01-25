@@ -35,7 +35,11 @@ If you find our work useful for your research, please consider citing the follow
 }
 ```
 
-## 
+## 📢: Shout-outs
+The architecture of our method is inspired by [ConvONet](https://github.com/autonomousvision/convolutional_occupancy_networks), [Taming-transformers](https://github.com/CompVis/taming-transformers) and [DCTransformer](https://github.com/benjs/DCTransformer-PyTorch).
+Thanks to the authors.
+
+Also, make sure to check this amazing transformer-based image completion project([ICT](https://github.com/raywzy/ICT))!
 
 ## :email: Contact
 
