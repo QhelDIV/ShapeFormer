@@ -4,7 +4,7 @@
 
 https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-bd53-8662ebd669fe.mp4
 
-### [Project Page](https://shapeformer.github.io/) | [Paper (ArXiv)](https://arxiv.org/pdf/)
+### [Project Page](https://shapeformer.github.io/) | [Paper (ArXiv)](https://arxiv.org/abs/2201.10326)
 <!-- | [Pre-trained Models](https://www.dropbox.com/s/we886b1fqf2qyrs/ckpts_ICT.zip?dl=0) :fire: |  -->
 
 **This repository is the official pytorch implementation of our paper, *ShapeFormer: Transformer-based Shape Completion via Sparse Representation*.**
@@ -27,11 +27,13 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 If you find our work useful for your research, please consider citing the following papers :)
 
 ```bibtex
-@article{yan2021shapeformer,
-  author    = {Yan, Xingguang and Lin, Liqiang and Mitra, Niloy and Lischinski, Dani and Cohen-Or, Danny and Huang, Hui},
-  title     = {Shapeformer: Transformer-based Shape Completion via Sparse Representation},
-  journal   = {ArXiv},
-  year      = {2021},
+@misc{yan2022shapeformer,
+      title={ShapeFormer: Transformer-based Shape Completion via Sparse Representation}, 
+      author={Xingguang Yan and Liqiang Lin and Niloy J. Mitra and Dani Lischinski and Danny Cohen-Or and Hui Huang},
+      year={2022},
+      eprint={2201.10326},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
 }
 ```
 
