@@ -1,0 +1,50 @@
+name: nnrecon
+channels:
+  - conda-forge
+  - pytorch
+  - defaults
+dependencies:
+  - python>=3.7.0
+  - pip
+  - cython>=0.29.2
+  - jupyterlab
+  - ipykernel
+# need this command afterward
+# ipython kernel install --user --name=<any_name_for_kernel>
+
+# numpy universe
+  - numpy>=1.16.5
+  - matplotlib>=3.0.3
+  - pandas>=0.23.4
+  - scikit-learn
+  - scikit-image>=0.14.1
+  - scipy>=1.1.0
+# deep learning 
+  - pytorch==1.7.0
+  - pytorch-lightning>=1.2.3
+  - torchvision>=0.4.0
+#  - tensorboardx>=2.0
+#  - tensorboard>=2.0
+#  changed tensorboard to wandb
+# system, file io, testing
+  - pytest>=4.0.2
+  - tqdm>=4.28.1
+  - pyyaml>=3.13
+  - h5py>=2.9.0
+  - bashlex
+  - pathos
+  - nb_conda_kernels
+# geometry
+  - igl>2.2.0
+  - trimesh>=3.7.4
+  - plyfile>=0.7
+# rendering, image and video processing
+  - ffmpeg
+  - pillow=5.3.0
+  - fresnel
+  - imageio=2.4.1
+  - pip:
+      - learn2learn>=0.1.2
+      - PyMCubes
+      - wandb
+
