@@ -1,0 +1,85 @@
+project_name: nnrecon
+expr_name: CVPR22/shapeformer
+
+pl_model_opt:
+  class: shapeformer.shapeformer.ShapeFormer
+  kwargs:
+    voxel_res: &voxel_res 16
+    end_tokens:  &end_tokens  [4096, 4096]
+    vocab_sizes: &vocab_sizes [4097, 4097]
+    extra_vocab_sizes: &extra_vocab_sizes [4097]
+    block_size: &block_size 812
+    tuple_n: &tuple_n 2
+    representer_opt:
+      class: shapeformer.representers.AR_N
+      kwargs:
+        voxel_res: *voxel_res
+        uncond: False
+        no_val_ind: False
+        block_size: *block_size
+        end_tokens: *end_tokens
+        random_cind_masking: True
+        mask_invalid_completion: True
+        vqvae_opt:
+          class: vqdif.vqdif.VQDIF
+          ckpt_path: "experiments/vqdif/checkpoints/epoch=31-step=34143.ckpt"
+    transformer_opt:
+      class: shapeformer.transformer.mingpt.CondTupleGPT
+      kwargs:
+        tuple_n: *tuple_n
+        vocab_sizes: *vocab_sizes
+        extra_vocab_sizes: *extra_vocab_sizes
+        n_layers: [20,4]
+        block_size: *block_size
+        n_head: 16
+        n_embd: 1024
+        attn_pdrop: .01
+        resid_pdrop: .01
+        embd_pdrop: .01
+    optim_opt:
+      lr: 1.e-5
+      scheduler: 'StepLR'
+      step_size: 10
+      gamma: .9
+datamodule_opt:
+  class: datamodule.DataModule
+  kwargs:
+    num_workers: 4
+    batch_size: 4
+    test_batch_size: 4
+    trainset_opt: &dset_opt
+      class: ar_datasets.imnet_datasets.Imnet2Dataset
+      kwargs:
+        split: "train"
+        cate: "all" 
+        boundary_N: 32768
+        target_N: 8192
+        partial_opt:
+          class: ar_datasets.partial.VirtualScanSelector
+          kwargs: {context_N: 16384}
+    testset_opt:
+      class: ar_datasets.imnet_datasets.Imnet2Dataset
+      kwargs:
+        split: "test"
+        boundary_N: 32768
+        cate: "all" 
+        target_N: -1
+        partial_opt:
+          class: ar_datasets.partial.VirtualScanSelector
+          kwargs: {context_N: 16384}
+callbacks:
+  vis_recon:
+    class: shapeformer.shapeformer.VisShapeFormer
+    kwargs:
+      no_sanity_check: True
+      every_n_epoch: 4
+      
+      end_tokens: *end_tokens
+
+      top_k: 100
+      top_p: 0.4
+      depth: 4
+
+      resolution: [256,256]
+      render_samples: 32
+      visual_indices: [0,1,2,3,4,5,6,7]

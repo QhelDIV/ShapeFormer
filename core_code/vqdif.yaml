@@ -1,0 +1,73 @@
+project_name: nnrecon
+expr_name: CVPR22/vqdif
+pl_model_opt:
+  class: vqdif.vqdif.VQDIF
+  kwargs:
+    encoder_opt:
+      class: vqdif.enc.LocalPoolPointnet
+      kwargs:
+        hidden_dim: 32
+        plane_type: 'grid'
+        grid_resolution: 64
+        c_dim: 32
+        downsampler: True
+        downsampler_kwargs: 
+          in_channels: 32
+          downsample_steps: 2
+    quantizer_opt:
+      class: vqdif.quantizer.Quantizer
+      kwargs:
+        vocab_size: 4096
+        n_embd: &vq_dim 128
+    vq_beta: .01
+    decoder_opt:
+      class: vqdif.dec.LocalDecoder
+      kwargs:
+        sample_mode: bilinear # bilinear / nearest
+        hidden_size: 32
+        c_dim: 32
+
+        unet3d: True
+        unet3d_kwargs:
+          num_levels: 3
+          f_maps: *vq_dim
+          in_channels: *vq_dim
+          out_channels: *vq_dim
+        upsampler: True
+        upsampler_kwargs:
+          in_channels: *vq_dim
+          upsampler_steps: 2
+    optim_opt:
+      lr: .0001
+      scheduler: 'StepLR'
+      step_size: 10
+      gamma: .9
+datamodule_opt:
+  class: datamodule.DataModule
+  kwargs:
+    num_workers: 8
+    batch_size: 16
+    test_batch_size: 4
+    trainset_opt: &dset_opt
+      class: ar_datasets.imnet_datasets.ImnetDataset
+      kwargs:
+        cate: "all" 
+        boundary_N: 32768
+        target_N: 8192
+    testset_opt:
+      class: ar_datasets.imnet_datasets.ImnetDataset
+      kwargs:
+        boundary_N: 32768
+        cate: "all" 
+        target_N: -1
+callbacks:
+  vis_recon:
+    class: vqdif.vqdif.VisSparseRecon3D
+    kwargs:
+      every_n_epoch: 2
+      quant_grid_depth: 4
+      max_length: 812
+      vocab_size: 4096
+      end_tokens: [4096,4096]
+      no_sanity_check: True
+      visual_indices: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,10,20]

@@ -19,7 +19,8 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 
 
 ## :hourglass_flowing_sand: Code is coming soon!
-- [ ] Release code
+- [x] Core model code is released, please check core_code/README.md
+- [ ] Release complete code
 - [ ] Add Google Colab
 
 ## :notebook_with_decorative_cover: Citation
