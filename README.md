@@ -20,6 +20,7 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 
 ## :hourglass_flowing_sand: Code is coming soon!
 - [x] Core model code is released, please check core_code/README.md
+Also, there is a personal utility library called [xgutils](https://github.com/QhelDIV/xgutils). The ShapeFormer project has used many of its functions, please also install that library to use ShapeFormer.
 - [ ] Release complete code
 - [ ] Add Google Colab
 
