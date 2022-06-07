@@ -44,7 +44,7 @@ class ShapeFormer(pl.LightningModule):
                 'block_size': block_size,
                 'end_tokens': end_tokens,
                 'vqvae_opt': {
-                    'class': 'shapeformer.models.vqdif.vqdif.VQConvONet',
+                    'class': 'shapeformer.models.vqdif.vqdif.VQDIF',
                     'ckpt_path': "/studio/nnrecon/experiments/vqdif/all_quant_16_vqbeta.001/checkpoints/epoch=31-step=34143.ckpt"}
             }
         }

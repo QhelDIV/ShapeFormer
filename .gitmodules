@@ -1,0 +1,3 @@
+[submodule "xgutils"]
+	path = xgutils
+	url = https://github.com/QhelDIV/xgutils

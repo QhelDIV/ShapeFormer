@@ -18,7 +18,7 @@ from shapeformer.models.treesformer.common import *
 from .quantizer import Quantizer
 
 
-class VQConvONet(pl.LightningModule):
+class VQDIF(pl.LightningModule):
     def __init__(self, Xct_as_Xbd=False, encoder_opt=None, decoder_opt=None, quantizer_opt=None, vq_beta=1.,
                  optim_opt=None, ckpt_path=None, opt=None):
         super().__init__()
