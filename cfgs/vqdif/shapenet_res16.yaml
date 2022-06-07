@@ -1,0 +1,97 @@
+project_name: nnrecon
+expr_name: vqdif/shapenet_res16
+pltrainer_opt:
+  resume_from: 'latest' #'ckpt_epoch=499-val_loss=-1.74e+00.ckpt'
+  gpus: [4] # can be [list of int],[int],or[str]
+  logger: wandb
+  logger_kwargs:
+    mode: "online" # online, offline, disabled
+    tags: ["VQDIF", "shapenet"]
+    notes: "Train VQDIF on all categories of the imnet dataset (a subset of ShapeNet)."
+    #id: "0"
+  auto_lr_find: False
+  check_val_every_n_epoch: 5
+  max_epochs: 300
+pl_model_opt:
+  class: nnrecon.models.vqdif.vqdif.VQConvONet
+  kwargs:
+    encoder_opt:
+      class: nnrecon.models.vqdif.enc.LocalPoolPointnet
+      kwargs:
+        hidden_dim: 32
+        plane_type: 'grid'
+        grid_resolution: 64
+        c_dim: 32
+        downsampler: True
+        downsampler_kwargs: 
+          in_channels: 32
+          downsample_steps: 2
+    quantizer_opt:
+      class: nnrecon.models.vqdif.quantizer.Quantizer
+      kwargs:
+        vocab_size: 4096
+        n_embd: &vq_dim 128
+    vq_beta: .001
+    decoder_opt:
+      class: nnrecon.models.vqdif.dec.LocalDecoder
+      kwargs:
+        sample_mode: bilinear # bilinear / nearest
+        hidden_size: 32
+        c_dim: 32
+
+        unet3d: True
+        unet3d_kwargs:
+          num_levels: 3
+          f_maps: *vq_dim
+          in_channels: *vq_dim
+          out_channels: *vq_dim
+        upsampler: True
+        upsampler_kwargs:
+          in_channels: *vq_dim
+          upsampler_steps: 2
+    optim_opt:
+      lr: .0001
+      scheduler: 'StepLR'
+      step_size: 10
+      gamma: .9
+datamodule_opt:
+  class: nnrecon.models.datamodule.DataModule
+  kwargs:
+    num_workers: 8
+    batch_size: 16
+    test_batch_size: 4
+    trainset_opt: &dset_opt
+      class: nnrecon.data.ar_datasets.imnet_datasets.Imnet2LowResDataset
+      kwargs:
+        dataset: IMNet2_64
+        cate: "all" # 0plane, 1bench, 2cabinet, 3car, 4tv, 5chair, 6lamp, 7cab, 8gun, 9sofa, 10table, 11?, 12vessel
+        boundary_N: 32768
+        weighted_sampling: False
+        grid_dim: 64
+        target_N: 8192
+        duplicate_size: 1
+        partial_opt:
+          class: nnrecon.data.ar_datasets.partial.BallSelector
+          kwargs: {radius: .4, context_N: 4096}
+    testset_opt:
+      class: nnrecon.data.ar_datasets.imnet_datasets.Imnet2LowResDataset
+      kwargs:
+        dataset: IMNet2_64
+        boundary_N: 32768
+        cate: "all" # 0plane, 1bench, 2cabinet, 3car, 4tv, 5chair, 6lamp, 7cab, 8gun, 9sofa, 10table, 11?, 12vessel
+        target_N: -1
+        grid_dim: 64
+        partial_opt:
+          class: nnrecon.data.ar_datasets.partial.BallSelector
+          kwargs: {radius: .4, context_N: 4096}
+callbacks:
+  vis_recon:
+    class: nnrecon.models.vqdif.vqdif.VisSparseRecon3D
+    kwargs:
+      every_n_epoch: 5
+      quant_grid_depth: 4
+      max_length: 512
+      vocab_size: 4096
+      end_tokens: [4096,4096]
+      no_sanity_check: True
+      visual_indices: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,10,20]
