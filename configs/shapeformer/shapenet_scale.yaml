@@ -58,8 +58,8 @@ datamodule_opt:
   class: shapeformer.datamodule.DataModule
   kwargs:
     num_workers: 4
-    batch_size: 4
-    test_batch_size: 4
+    batch_size: 2
+    test_batch_size: 2
     trainset_opt: &dset_opt
       class: shapeformer.data.paper_datasets.transform_dataset.TransformDataset
       kwargs:

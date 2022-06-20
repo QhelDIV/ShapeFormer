@@ -58,8 +58,8 @@ datamodule_opt:
   class: shapeformer.datamodule.DataModule
   kwargs:
     num_workers: 8
-    batch_size: 16
-    test_batch_size: 4
+    batch_size: 8
+    test_batch_size: 2
     trainset_opt: &dset_opt
       class: shapeformer.data.imnet_datasets.imnet_datasets.Imnet2LowResDataset
       kwargs:
