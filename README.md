@@ -59,6 +59,7 @@ We use the dataset from [IMNet](https://github.com/czq142857/IM-NET#datasets-and
 
 The dataset we adopted is a downsampled version (64^3) from these dataset (which is 256 resolution).
 Please download our processed dataset from this google drive [URL](https://drive.google.com/file/d/1HUbI45KmXCDJv-YVYxRj-oSPCp0D0xLh/view?usp=sharing).
+And then extract the data to `datasets/IMNet2_64/`.
 
 To use the full resolution dataset, please first download the original IMNet and HSP datasets, and run the `make_imnet_dataset` function in `shapeformer/data/imnet_datasets/imnet_datasets.py`
 
