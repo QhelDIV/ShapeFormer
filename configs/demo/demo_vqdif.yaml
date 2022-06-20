@@ -2,6 +2,10 @@ inherit_from: ../vqdif/shapenet_res16.yaml
 datamodule_opt:
   class: shapeformer.datamodule.DataModule
   kwargs:
+    trainset_opt:
+      class: null
+    valset_opt: 
+      class: null
     test_batch_size: 1
     testset_opt:
       class: shapeformer.data.paper_datasets.list_dataset.ListDataset
