@@ -192,7 +192,7 @@ class VisRecon3D(plutil.VisCallback):
     def visualize_batch(self, computed):
         computed = ptutil.ths2nps(computed)
         batch, logits, quant_ind = computed["batch"], computed["logits"], computed["quant_ind"]
-        quant_ind = convonet_to_nnrecon(quant_ind)
+        quant_ind = convonet_to_shapeformer(quant_ind)
         occupancy = nputil.sigmoid(logits.reshape(-1))
         Xtg = batch['Xtg'][0]
         imgs = {}
@@ -272,7 +272,7 @@ class VisSparseRecon3D(plutil.VisCallback):
         computed = ptutil.ths2nps(computed)
         batch, logits, quant_ind, sparse_quant_ind = computed["batch"], computed[
             "logits"], computed["quant_ind"], computed["sparse"]
-        quant_ind = convonet_to_nnrecon(quant_ind)
+        quant_ind = convonet_to_shapeformer(quant_ind)
         occupancy = nputil.sigmoid(logits.reshape(-1))
         Xtg = batch['Xtg'][0] if "Xtg" in batch else None
         all_Xtg = self.all_Xtg.numpy()
@@ -299,11 +299,11 @@ class VisSparseRecon3D(plutil.VisCallback):
         np.savez(f"{eval_dir}/{input_name}.npz", eval_pc=eval_pc)
 
         pos_ind, val_ind = sparse_quant_ind[:, 1], sparse_quant_ind[:, 2]
-        pos_ind = sparse_convonet_to_nnrecon(
+        pos_ind = sparse_convonet_to_shapeformer(
             pos_ind, shape=(2**self.quant_grid_depth,)*3)
         imgs["quant_ind"] = vis3d.IndexVoxelPlot(
             pos_ind, val_ind, val_max=self.vocab_size, depth=self.quant_grid_depth, camera_kwargs=self.vis_camera)
-        pos_ind = sparse_convonet_to_nnrecon(
+        pos_ind = sparse_convonet_to_shapeformer(
             computed["grid_mask"][0].reshape(-1).nonzero()[0], shape=(2**self.quant_grid_depth,)*3)
         imgs["mask_ind"] = vis3d.IndexVoxelPlot(
             pos_ind, pos_ind, val_max=4096, depth=self.quant_grid_depth, camera_kwargs=self.vis_camera)
@@ -318,210 +318,3 @@ def codebook_nonzero_count(pl_model):
     w = codebook.embedding.weight
     print(w.shape)
     print(len((w.abs().sum(axis=-1) > 10e-1).nonzero()))
-
-
-class RefineNet(pl.LightningModule):
-    def __init__(self,  vqconvonet_opt=None, decoder_opt=None, no_pc_feature=False, optim_opt=None):
-        super().__init__()
-        self.__dict__.update(locals())
-        self.vqvae_model = self.init_trained_model_from_ckpt(vqconvonet_opt)
-        self.decoder = sysutil.instantiate_from_opt(opt=self.decoder_opt)
-        # print(self.vqvae_model.decoder.state_dict().keys())
-        #self.decoder.load_state_dict( self.vqvae_model.decoder.state_dict(), strict=False )
-        self.criterion = nn.BCEWithLogitsLoss()
-
-    def init_trained_model_from_ckpt(self, config, freeze=True):
-        model = sysutil.load_object(
-            config["class"]).load_from_checkpoint(config["ckpt_path"])
-        model = model.eval()
-        # freeze model, so that its not in grad flow, neccessary for ddp
-        model.requires_grad_(not freeze)
-        model.train = disabled_train
-        return model
-
-    def forward(self, Xct, Xbd, Xtg, **kwargs):
-        # Xbd: [B, num_pts, x_dim], Xtg: [B, num_probes, x_dim]
-        B, num_pts, x_dim = Xbd.shape
-        # (B, C, res, res, res)
-        with torch.no_grad():
-            encoded = self.vqvae_model.encode_quant(Xbd)
-            quant_feat = encoded["quant_feat"]
-
-            self.vqvae_model.encode_quant(Xct)
-            pc_feature_grid = self.vqvae_model.encoder.pc_feature_grid
-        logits = self.decoder(p=Xtg/2., c_grid=quant_feat,
-                              pc_feature=pc_feature_grid if self.no_pc_feature == False else None)  # ["logits"]
-
-        return dict(logits=logits, **encoded)
-
-    def quantize_cloud(self, cloud):
-        return self.vqvae_model.quantize_cloud(cloud)
-
-    def decode_index(self, code_ind, Xtg, pc_feature):
-        quant_feat = self.vqvae_model.quantizer.get_code(code_ind)
-        logits = self.decoder(p=Xtg/2., c_grid=quant_feat,
-                              pc_feature=pc_feature)
-        return dict(logits=logits)
-
-    def get_loss(self, batch, batch_idx, stage="train"):
-        out = self.forward(**batch)
-        losses = self.criterion(out["logits"], batch["Ytg"])
-        return dict(loss=losses)
-
-    def training_step(self, batch, batch_idx, stage="train"):
-        losses = self.get_loss(batch, batch_idx, stage="train")
-        for loss_name in losses:
-            self.log(f'{stage}/{loss_name}',
-                     losses[loss_name], prog_bar=True, sync_dist=True)
-        return losses['loss']
-
-    def validation_step(self, batch, batch_idx=0, stage='val', return_data=False):
-        losses = self.get_loss(batch, batch_idx, stage="val")
-        for loss_name in losses:
-            self.log(f'{stage}/{loss_name}',
-                     losses[loss_name], prog_bar=False, sync_dist=True)
-        self.log('val_loss', losses['loss'], prog_bar=False, sync_dist=True)
-        return losses['loss']
-
-    def test_step(self, batch, batch_idx=0, stage='test', return_data=False):
-        losses = self.get_loss(batch, batch_idx, stage="test")
-        for loss_name in losses:
-            self.log(f'{stage}/{loss_name}',
-                     losses[loss_name], prog_bar=False, sync_dist=True)
-        return losses['loss']
-
-    def configure_optimizers(self):
-        oopt = self.optim_opt
-        if oopt is None:
-            return [], []
-        optim = torch.optim.Adam(self.parameters(), lr=self.optim_opt['lr'])
-
-        sched_name = oopt['scheduler']
-        if sched_name == 'StepLR':
-            scheduler = torch.optim.lr_scheduler.StepLR(optim,
-                                                        step_size=oopt['step_size'],
-                                                        gamma=oopt['gamma'],
-                                                        verbose=True)
-        elif sched_name == 'None':
-            return optim
-        else:
-            raise NotImplementedError(f'Can not use scheduler:{sched_name}')
-        return [optim], [scheduler]
-
-
-class RefineNet2(RefineNet):
-    """use vqconnet's decoder instead of vqreconnet's """
-
-    def __init__(self,  vqconvonet_opt=None, decoder_opt=None, no_pc_feature=False, optim_opt=None):
-        pl.LightningModule.__init__(self)
-        self.__dict__.update(locals())
-        self.vqvae_model = self.init_trained_model_from_ckpt(vqconvonet_opt)
-        self.decoder = self.init_trained_model_from_ckpt(
-            vqconvonet_opt, freeze=False).decoder
-        # print(self.vqvae_model.decoder.state_dict().keys())
-        #self.decoder.load_state_dict( self.vqvae_model.decoder.state_dict(), strict=False )
-        self.criterion = nn.BCEWithLogitsLoss()
-
-
-class VisRefineNet(plutil.VisCallback):
-    def __init__(self, samples=32, quant_grid_depth=4, vocab_size=4096, max_length=512, end_tokens=(4096, 4096), resolution=(512, 512),
-                 partial_radius=0.02, masks=["full", "Xct", "None"], camPos=[2, 2, 2], pcfeature_model_opt=None, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self.__dict__.update(locals())
-        #self.visual_indices = list(range(100000))
-        camPos = np.array(camPos)
-        self.vis_camera = dict(camPos=camPos, camLookat=np.array([0., 0., 0.]),
-                               camUp=np.array([0, 1, 0]), camHeight=2, resolution=resolution, samples=samples)
-        self.cloudR = 0.008
-        self.pcfeature_model = sysutil.instantiate_from_opt(
-            opt=self.pcfeature_model_opt) if self.pcfeature_model_opt is not None else None
-        self.all_Xtg = torch.from_numpy(nputil.makeGrid(
-            [-1, -1, -1.], [1., 1, 1], [256, ]*3, indexing="ij"))[None, ...]
-
-    def init_trained_model_from_ckpt(self, config, freeze=True):
-        model = sysutil.load_object(
-            config["class"]).load_from_checkpoint(config["ckpt_path"])
-        model = model.eval()
-        # freeze model, so that its not in grad flow, neccessary for ddp
-        model.requires_grad_(not freeze)
-        model.train = disabled_train
-        return model
-
-    def compute_batch(self, batch, input_name=""):
-        # out = self.pl_module(batch["Xbd"], self.all_Xtg.type_as(batch["Xtg"]))
-        # if type(out) is not dict:
-        #     out = dict(logits=out)
-        # return {"logits":out["logits"], "batch":batch}
-        quant_ind, mode, encoded = self.pl_module.quantize_cloud(batch["Xbd"])
-        grid_mask = encoded["grid_mask"]
-        # quant_ind[quant_ind> =1288]=1391
-
-        #print( torch.stack(torch.unique(quant_ind.reshape(-1), return_counts=True),axis=-1) )
-        sparse, mode = batch_dense2sparse(
-            quant_ind, max_length=self.max_length, end_tokens=self.end_tokens)
-        packed_sparse = pack_sparse(sparse, end_tokens=self.end_tokens)
-        dense = batch_sparse2dense(
-            packed_sparse, empty_ind=mode, dense_res=2**self.quant_grid_depth)
-
-        all_Xtg = self.all_Xtg.type_as(batch["Xbd"])
-
-        logits_dict = {}
-        self.pl_module.vqvae_model.encode_quant(batch["Xct"])
-        pc_feature_grid = self.pl_module.vqvae_model.encoder.pc_feature_grid
-        decoded = self.pl_module.decode_index(
-            dense, all_Xtg, pc_feature=pc_feature_grid)
-        logits_refine = ptutil.ths2nps(decoded["logits"])
-        decoded = self.pl_module.vqvae_model.decode_index(dense, all_Xtg)
-        logits_vanilla = ptutil.ths2nps(decoded["logits"])
-        if self.pcfeature_model is not None:
-            decoded = self.pcfeature_model.decode_index(dense, all_Xtg)
-            logits_pcfeature = ptutil.ths2nps(decoded["logits"])
-        else:
-            logits_pcfeature = None
-        computed = {"logits_refine": logits_refine,
-                    "logits_vanilla": logits_vanilla,
-                    "logits_pcfeature": logits_pcfeature,
-                    "quant_ind": encoded.get("quant_ind"),
-                    "sparse": packed_sparse,
-                    "grid_mask": grid_mask,
-                    "batch": batch
-                    }
-        return ptutil.ths2nps(computed)
-
-    def visualize_batch(self, computed, input_name=""):
-        computed = ptutil.ths2nps(computed)
-        batch, logits_refine, logits_vanilla, quant_ind, sparse_quant_ind = computed["batch"], computed[
-            "logits_refine"], computed["logits_vanilla"], computed["quant_ind"], computed["sparse"]
-        quant_ind = convonet_to_nnrecon(quant_ind)
-        Xtg = batch['Xtg'][0] if "Xtg" in batch else None
-        all_Xtg = self.all_Xtg.numpy()
-        imgs = {}
-        if 'Ytg' in batch:
-            imgs["gt"] = npfvis.plot_3d_recon(
-                Xtg=Xtg, Ytg=batch['Ytg'][0], camera_kwargs=self.vis_camera)
-        if "Xbd" in batch:
-            imgs["gt_pc"] = fresnelvis.renderMeshCloud(
-                cloud=batch["Xbd"][0], cloudR=self.cloudR, **self.vis_camera)
-
-        if "Xct" in batch:
-            partial_cloud = fresnelvis.renderMeshCloud(
-                cloud=batch["Xct"][0], cloudR=self.partial_radius, **self.vis_camera)
-            imgs.update({"data_pc_p": partial_cloud})
-
-        occupancy = nputil.sigmoid(logits_refine.reshape(-1))
-        imgs[f"recon_refine"] = npfvis.plot_3d_recon(
-            Xtg=all_Xtg, Ytg=occupancy, camera_kwargs=self.vis_camera)
-        occupancy = nputil.sigmoid(logits_vanilla.reshape(-1))
-        imgs[f"recon_vanilla"] = npfvis.plot_3d_recon(
-            Xtg=all_Xtg, Ytg=occupancy, camera_kwargs=self.vis_camera)
-
-        pos_ind, val_ind = sparse_quant_ind[:, 1], sparse_quant_ind[:, 2]
-        pos_ind = sparse_convonet_to_nnrecon(
-            pos_ind, shape=(2**self.quant_grid_depth,)*3)
-        imgs["quant_ind"] = vis3d.IndexVoxelPlot(
-            pos_ind, val_ind, val_max=self.vocab_size, depth=self.quant_grid_depth, camera_kwargs=self.vis_camera)
-        pos_ind = sparse_convonet_to_nnrecon(
-            computed["grid_mask"][0].reshape(-1).nonzero()[0], shape=(2**self.quant_grid_depth,)*3)
-        imgs["mask_ind"] = vis3d.IndexVoxelPlot(
-            pos_ind, pos_ind, val_max=4096, depth=self.quant_grid_depth, camera_kwargs=self.vis_camera)
-        return imgs

@@ -17,6 +17,8 @@
 /src/*.ckpt
 
 /studio
+pretrained
+pretrained.tar.gz
 
 /wandb
 temp

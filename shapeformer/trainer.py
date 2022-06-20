@@ -258,7 +258,7 @@ class Trainer():
     def parse_resume(self, ckpt):
         minfo = self.minfo
         if ckpt == '' or ckpt == 'restart':
-            if 'nnrecon/experiments/' not in minfo['expr_dir'] or minfo['expr_dir'].endswith('experiments') or minfo['expr_dir'].endswith('experiments/'):
+            if 'shapeformer/experiments/' not in minfo['expr_dir'] or minfo['expr_dir'].endswith('experiments') or minfo['expr_dir'].endswith('experiments/'):
                 # prevent accidentally remove irrelevant files
                 raise ValueError(f"Invalid resume_from: {minfo['expr_dir']}")
             else:

@@ -359,7 +359,7 @@ def vis_ind(indices=None, prefix="data",
             #     print(prefix)
             #     print(pos_ind)
             #     print(val_ind)
-            pos_ind = sparse_convonet_to_nnrecon(
+            pos_ind = sparse_convonet_to_shapeformer(
                 pos_ind, shape=(2**dense_depth,)*3)
             qimg = vis3d.IndexVoxelPlot(
                 pos_ind, val_ind, val_max=quant_ind_max, depth=dense_depth, camera_kwargs=camera_kwargs)

@@ -2,7 +2,6 @@ project_name: shapeformer
 expr_name: shapeformer/shapenet_scale
 
 pltrainer_opt:
-  copy_ckpt_from: "/studio/nnrecon/experiments/CVPR22/trans_sf/scale/checkpoints/epoch065-val_loss0.4147.ckpt"
   resume_from: 'latest' #'ckpt_epoch=499-val_loss=-1.74e+00.ckpt'
   gpus: [4] # can be [list of int],[int],or[str]
   logger: wandb

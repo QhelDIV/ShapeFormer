@@ -215,7 +215,7 @@ class VisSparseRecon3D(plutil.VisCallback):
         computed = ptutil.ths2nps(computed)
         batch, logits, quant_ind, sparse_quant_ind = computed["batch"], computed[
             "logits"], computed["quant_ind"], computed["sparse"]
-        quant_ind = convonet_to_nnrecon(quant_ind)
+        quant_ind = convonet_to_shapeformer(quant_ind)
         occupancy = nputil.sigmoid(logits.reshape(-1))
         Xtg = batch['Xtg'][0] if "Xtg" in batch else None
         all_Xtg = self.all_Xtg.numpy()
@@ -236,7 +236,7 @@ class VisSparseRecon3D(plutil.VisCallback):
             Xtg=all_Xtg, Ytg=occupancy, camera_kwargs=self.vis_camera)
 
         pos_ind, val_ind = sparse_quant_ind[:, 1], sparse_quant_ind[:, 2]
-        pos_ind = sparse_convonet_to_nnrecon(
+        pos_ind = sparse_convonet_to_shapeformer(
             pos_ind, shape=(2**self.quant_grid_depth,)*3)
         imgs["quant_ind"] = vis3d.IndexVoxelPlot(
             pos_ind, val_ind, val_max=self.vocab_size, depth=self.quant_grid_depth, camera_kwargs=self.vis_camera)
