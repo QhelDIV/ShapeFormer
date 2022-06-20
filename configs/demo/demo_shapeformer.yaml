@@ -1,0 +1,18 @@
+inherit_from: ../shapeformer/shapenet_scale.yaml
+callbacks:
+  vis_recon:
+    class: shapeformer.models.shapeformer.shapeformer.VisShapeFormer
+    kwargs:
+      data_dir: experiments/demo_shapeformer/
+
+      no_sanity_check: True
+      every_n_epoch: 4
+      end_tokens: [4096, 4096]
+
+      top_k: 100
+      top_p: 0.4
+      depth: 4
+
+      resolution: [256,256]
+      render_samples: 32
+      visual_indices: [0,111111,222222,333333,444444,555555,666666,777777]
