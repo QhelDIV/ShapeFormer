@@ -5,7 +5,7 @@ pltrainer_opt:
   gpus: [4] # can be [list of int],[int],or[str]
   logger: wandb
   logger_kwargs:
-    mode: "online" # online, offline, disabled
+    mode: "disabled" # online, offline, disabled
     tags: ["VQDIF", "shapenet"]
     notes: "Train VQDIF on all categories of the imnet dataset (a subset of ShapeNet)."
     #id: "0"
@@ -55,13 +55,13 @@ pl_model_opt:
       step_size: 10
       gamma: .9
 datamodule_opt:
-  class: shapeformer.models.datamodule.DataModule
+  class: shapeformer.datamodule.DataModule
   kwargs:
     num_workers: 8
     batch_size: 16
     test_batch_size: 4
     trainset_opt: &dset_opt
-      class: shapeformer.data.imnet_datasets.Imnet2LowResDataset
+      class: shapeformer.data.imnet_datasets.imnet_datasets.Imnet2LowResDataset
       kwargs:
         dataset: IMNet2_64
         cate: "all" # 0plane, 1bench, 2cabinet, 3car, 4tv, 5chair, 6lamp, 7loudspeaker, 8gun, 9sofa, 10table, 11loudspeaker, 12vessel
@@ -74,7 +74,7 @@ datamodule_opt:
           class: shapeformer.data.partial.BallSelector
           kwargs: {radius: .4, context_N: 4096}
     testset_opt:
-      class: shapeformer.data.imnet_datasets.Imnet2LowResDataset
+      class: shapeformer.data.imnet_datasets.imnet_datasets.Imnet2LowResDataset
       kwargs:
         dataset: IMNet2_64
         boundary_N: 32768

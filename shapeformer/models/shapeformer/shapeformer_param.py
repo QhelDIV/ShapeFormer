@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 import time
 import sys
-sys.path.append('/studio/nnrecon')
+sys.path.append('/studio/shapeformer')
 
 #from .common import *
 
@@ -45,7 +45,7 @@ class ShapeFormer(pl.LightningModule):
                 'end_tokens': end_tokens,
                 'vqvae_opt': {
                     'class': 'shapeformer.models.vqdif.vqdif.VQDIF',
-                    'ckpt_path': "/studio/nnrecon/experiments/vqdif/all_quant_16_vqbeta.001/checkpoints/epoch=31-step=34143.ckpt"}
+                    'ckpt_path': "/studio/shapeformer/experiments/vqdif/shapenet_res16/checkpoints/epoch=31-step=34143.ckpt"}
             }
         }
         self.__dict__.update(locals())

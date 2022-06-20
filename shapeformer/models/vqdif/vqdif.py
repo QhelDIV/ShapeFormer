@@ -13,7 +13,7 @@ from einops.layers.torch import Rearrange, Reduce
 
 from shapeformer.models import networks
 from shapeformer.models import pointnet
-from shapeformer.models.treesformer.common import *
+from shapeformer.models.common import *
 
 from .quantizer import Quantizer
 

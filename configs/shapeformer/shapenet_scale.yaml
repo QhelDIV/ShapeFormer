@@ -1,0 +1,116 @@
+project_name: shapeformer
+expr_name: shapeformer/shapenet_scale
+
+pltrainer_opt:
+  copy_ckpt_from: "/studio/nnrecon/experiments/CVPR22/trans_sf/scale/checkpoints/epoch065-val_loss0.4147.ckpt"
+  resume_from: 'latest' #'ckpt_epoch=499-val_loss=-1.74e+00.ckpt'
+  gpus: [4] # can be [list of int],[int],or[str]
+  logger: wandb
+  logger_kwargs:
+    mode: "disabled" # online, offline, disabled
+    tags: ["3d_trans", "ShapeFormer", "IMNet_all", "revision", "random_cind_mask"] # "Uncond"]
+    notes: "AR+next cond"
+  auto_lr_find: False
+  check_val_every_n_epoch: 2
+  max_epochs: 300
+
+pl_model_opt:
+  class: shapeformer.models.shapeformer.shapeformer.ShapeFormer
+  kwargs:
+    voxel_res: &voxel_res 16
+    end_tokens:  &end_tokens  [4096, 4096]
+    vocab_sizes: &vocab_sizes [4097, 4097]
+    extra_vocab_sizes: &extra_vocab_sizes [4097]
+    block_size: &block_size 812
+    tuple_n: &tuple_n 2
+    representer_opt:
+      class: shapeformer.models.shapeformer.representers.AR_N
+      kwargs:
+        voxel_res: *voxel_res
+        uncond: False
+        no_val_ind: False
+        block_size: *block_size
+        end_tokens: *end_tokens
+        random_cind_masking: True
+        mask_invalid_completion: True
+        vqvae_opt:
+          class: shapeformer.models.vqdif.vqdif.VQDIF
+          ckpt_path: "experiments/vqdif/shapenet_res16/checkpoints/epoch=31-step=34143.ckpt"
+          yaml_path: "configs/vqdif/shapenet_res16.yaml"
+    transformer_opt:
+      class: shapeformer.models.shapeformer.transformer.mingpt.CondTupleGPT
+      kwargs:
+        tuple_n: *tuple_n
+        vocab_sizes: *vocab_sizes
+        extra_vocab_sizes: *extra_vocab_sizes
+        n_layers: [20,4]
+        block_size: *block_size
+        n_head: 16
+        n_embd: 1024
+        attn_pdrop: .01
+        resid_pdrop: .01
+        embd_pdrop: .01
+    optim_opt:
+      lr: 1.e-5
+      scheduler: 'StepLR'
+      step_size: 10
+      gamma: .9
+datamodule_opt:
+  class: shapeformer.datamodule.DataModule
+  kwargs:
+    num_workers: 4
+    batch_size: 4
+    test_batch_size: 4
+    trainset_opt: &dset_opt
+      class: shapeformer.data.paper_datasets.transform_dataset.TransformDataset
+      kwargs:
+        max_voxels: 512
+        voxel_dim: 16
+        mode: &transf_mode ["scale"]
+        dset_opt: 
+          class: shapeformer.data.imnet_datasets.imnet_datasets.Imnet2LowResDataset
+          kwargs:
+            split: "train"
+            dataset: IMNet2_64
+            cate: "all" # 0plane, 1bench, 2cabinet, 3car, 4tv, 5chair, 6lamp, 7cab, 8gun, 9sofa, 10table, 11?, 12vessel
+            boundary_N: 32768
+            weighted_sampling: False
+            grid_dim: 64
+            target_N: 8192
+            duplicate_size: 1
+            partial_opt:
+              class: shapeformer.data.partial.VirtualScanSelector
+              kwargs: {context_N: 16384}
+    testset_opt:
+      class: shapeformer.data.paper_datasets.transform_dataset.TransformDataset
+      kwargs:
+        max_voxels: 512
+        voxel_dim: 16
+        mode: *transf_mode 
+        dset_opt: 
+          class: shapeformer.data.imnet_datasets.imnet_datasets.Imnet2LowResDataset
+          kwargs:
+            split: "test"
+            dataset: IMNet2_64
+            boundary_N: 32768
+            cate: "all" # 0plane, 1bench, 2cabinet, 3car, 4tv, 5chair, 6lamp, 7cab, 8gun, 9sofa, 10table, 11?, 12vessel
+            target_N: -1
+            grid_dim: 64
+            partial_opt:
+              class: shapeformer.data.partial.VirtualScanSelector
+              kwargs: {context_N: 16384}
+callbacks:
+  vis_recon:
+    class: shapeformer.models.shapeformer.shapeformer.VisShapeFormer
+    kwargs:
+      no_sanity_check: True
+      every_n_epoch: 4
+      end_tokens: *end_tokens
+
+      top_k: 100
+      top_p: 0.4
+      depth: 4
+
+      resolution: [256,256]
+      render_samples: 32
+      visual_indices: [0,111111,222222,333333,444444,555555,666666,777777]

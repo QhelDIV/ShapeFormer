@@ -35,10 +35,11 @@ class Trainer():
 
     def __init__(self, opt, root_dir=DEFAULT_ROOT, mode='test', gpus=[0]):
         if type(opt) is str:
-            opt = optutil.get_opt(opt, root_dir=root_dir, src_name='src')
+            opt = optutil.get_opt(opt, root_dir=root_dir,
+                                  src_name='shapeformer')
         self.opt = opt = argparse.Namespace(**opt)
         self.project_name = self.opt.project_name if hasattr(
-            self.opt, "project_name") else "nnrecon"
+            self.opt, "project_name") else "shapeformer"
 
         trainer_opt = self.trainer_opt = self.default_opt()
         sysutil.dictUpdate(self.trainer_opt, self.opt.pltrainer_opt)
@@ -302,7 +303,7 @@ class ExpJob(qdaq.Job):
     def __init__(self, opt):
         if type(opt) is str:
             opt = optutil.get_opt(
-                opt, root_dir=DEFAULT_ROOT, src_name='nnrecon')
+                opt, root_dir=DEFAULT_ROOT, src_name='shapeformer')
         self.opt = opt
         self.minfo = opt['meta_info']
 
