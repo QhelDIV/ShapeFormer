@@ -19,7 +19,7 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 
 ## :hourglass_flowing_sand: UPDATES
 - [x] Core model code is released, please check core_code/README.md
-- [x] The complete code is released! Please have a try!
+- [x] **The complete code is released! Please have a try!**
 - [ ] Add Google Colab
 
 ## Installation
