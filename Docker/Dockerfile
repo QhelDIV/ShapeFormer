@@ -13,7 +13,6 @@ RUN apt-get install -y \
     git 
 
 # config conda
-COPY .condarc ~/.condarc
 RUN conda clean -i
 RUN conda init bash
 
