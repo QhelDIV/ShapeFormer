@@ -287,6 +287,8 @@ class Trainer():
         return ckpt_path
 
     def run_callbacks(self):
+        self.data_module.prepare_data()
+        self.data_module.setup()
         self.model = self.model_class.load_from_checkpoint(
             self.resume_from_checkpoint)
         for callback in self.callbacks:

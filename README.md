@@ -37,6 +37,13 @@ Next, we need to install torch_scatter through this command
 
 First, download the pretrained model from this google drive [URL](https://drive.google.com/file/d/1HUbI45KmXCDJv-YVYxRj-oSPCp0D0xLh/view?usp=sharing) and extract the content to experiments/
 
+Then run the following command to test VQDIF. The results are in `experiments/demo_vqdif/results`
+
+      python -m shapeformer.trainer --opts configs/demo/demo_vqdif.yaml --gpu 0 --mode "run"
+
+Run the following command to test ShapeFormer for shape completion. The results are in `experiments/demo_shapeformer/results`
+
+      python -m shapeformer.trainer --opts configs/demo/demo_shapeformer.yaml --gpu 0 --mode "run"
 
 ## Dataset
 

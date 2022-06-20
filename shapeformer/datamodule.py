@@ -38,7 +38,7 @@ class DataModule(pl.LightningDataModule):
         if stage == 'fit' or stage == 'train' or stage == "val" or stage is None:
             self.train_set = sysutil.instantiate_from_opt(self.trainset_opt)
             self.val_set = sysutil.instantiate_from_opt(self.valset_opt)
-        if stage == "test" or stage is None or self.val_set is None:
+        if stage == "test" or stage is None or self.val_set is None or self.testset_opt["class"] is not None:
             self.test_set = sysutil.instantiate_from_opt(self.testset_opt)
 
         if self.valset_opt["class"] is None:

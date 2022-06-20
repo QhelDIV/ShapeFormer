@@ -4,18 +4,20 @@ datamodule_opt:
   kwargs:
     test_batch_size: 1
     testset_opt:
-      class: shapeformer.data.paper_datasets.paper_dataset.npyDataset
+      class: shapeformer.data.paper_datasets.list_dataset.ListDataset
       kwargs:
-        dlist: configs/demo/demo.lst
+        ditem_list: demo/dataset/demo.lst
         subsample: False
 callbacks:
   vis_recon:
     class: shapeformer.models.vqdif.vqdif.VisSparseRecon3D
     kwargs:
+      data_dir: experiments/demo_vqdif/
+
       no_sanity_check: True
       every_n_epoch: 5
       quant_grid_depth: 4
       max_length: 512
       vocab_size: 4096
       end_tokens: [4096,4096]
-      visual_indices: [0,1,2,3,4,5,6,7,8]
+      visual_indices: all

@@ -11,12 +11,12 @@ select point cloud data from a list
 
 
 class ListDataset(Dataset):
-    def __init__(self, ditem_list, list_dir, split="test", load_keys=["Xbd", "Xct"], subsample=True, boundary_N=32768, context_N=16384, evalseed=314, **kwargs):
+    def __init__(self, ditem_list, split="test", load_keys=["Xbd", "Xct"], subsample=True, boundary_N=32768, context_N=16384, evalseed=314, **kwargs):
         super().__init__()
         self.__dict__.update(locals())
 
-        self.ditem_names = np.loadtxt(ditem_list)
-        self.list_dir = list_dir
+        self.ditem_names = np.loadtxt(ditem_list, dtype=str)
+        self.list_dir = os.path.dirname(ditem_list)
 
     def __len__(self):
         return len(self.ditem_names)
