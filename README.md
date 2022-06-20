@@ -64,6 +64,8 @@ And if you only want to run callbacks (such as visualization/generation), set th
 There is a visualization callback for both VQDIF and ShapeFormer, who will call the model to obtain 3D meshes and render them to images. The results will be save in `experiments/$exp_name$/results/$callback_name$/`
 The callbacks will be automatically called during training and testing, so to get the generation results you just need to test the model.
 
+ALso notice that in the configuration files batch sizes are set to very small so that the model can run on a 12GB memory GPU. You can tune it up if your GPU has a larger memory.
+
 ### Multi-GPU
 Notice that to use multiple GPUs, just specify the GPU ids. For example `--gpu 0 1 2 4` is to use the 0th, 1st, 2nd, 4th GPU for training. Inside the program their indices will be mapped to 0 1 2 3 for simplicity.
 
