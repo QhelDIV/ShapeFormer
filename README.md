@@ -17,8 +17,16 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 [Hui Huang](https://vcc.tech/~huihuang)<sup>1†</sup> <br>
 <sup>1</sup>Shenzhen University, <sup>2</sup>University College London, <sup>3</sup>Hebrew University of Jerusalem, <sup>4</sup>Tel Aviv University
 
+## :hourglass_flowing_sand: UPDATES
+- [x] Core model code is released, please check core_code/README.md
+- [x] The complete code is released! Please have a try!
+- [ ] Add Google Colab
+
 ## Installation
 The code is tested in docker enviroment [pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel](https://hub.docker.com/layers/pytorch/pytorch/pytorch/1.6.0-cuda10.1-cudnn7-devel/images/sha256-ccebb46f954b1d32a4700aaeae0e24bd68653f92c6f276a608bf592b660b63d7?context=explore).
+The following are instructions for setting up the environment in a Linux system from scratch.
+You can also directly pull our provided docker environment: `sudo docker pull qheldiv/shapeformer`
+Or build the docker environment by yourself with the setup files in the `Docker` folder.
 
 First, clone this repository with submodule xgutils. [xgutils](https://github.com/QhelDIV/xgutils.git) contains various useful system/numpy/pytorch/3D rendering related functions that will be used by ShapeFormer.
 
@@ -76,10 +84,6 @@ ALso notice that in the configuration files batch sizes are set to very small so
 ### Multi-GPU
 Notice that to use multiple GPUs, just specify the GPU ids. For example `--gpu 0 1 2 4` is to use the 0th, 1st, 2nd, 4th GPU for training. Inside the program their indices will be mapped to 0 1 2 3 for simplicity.
 
-## :hourglass_flowing_sand: What's next?
-- [x] Core model code is released, please check core_code/README.md
-- [x] Release complete code 
-- [ ] Add Google Colab
 
 ## :notebook_with_decorative_cover: Citation
 
