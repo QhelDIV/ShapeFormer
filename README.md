@@ -31,7 +31,7 @@ Then, create a conda environment with the yaml file.
 
 Next, we need to install torch_scatter through this command
 
-      pip install torch-scatter -f https://data.pyg.org/whl/torch-1.7.0+cu101.html
+      pip install torch-scatter==2.0.7 -f https://data.pyg.org/whl/torch-1.7.0+cu101.html
 
 ## Demo
 
