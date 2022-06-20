@@ -17,11 +17,59 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 [Hui Huang](https://vcc.tech/~huihuang)<sup>1†</sup> <br>
 <sup>1</sup>Shenzhen University, <sup>2</sup>University College London, <sup>3</sup>Hebrew University of Jerusalem, <sup>4</sup>Tel Aviv University
 
+## Installation
+The code is tested in docker enviroment [pytorch/pytorch:1.6.0-cuda10.1-cudnn7-devel](https://hub.docker.com/layers/pytorch/pytorch/pytorch/1.6.0-cuda10.1-cudnn7-devel/images/sha256-ccebb46f954b1d32a4700aaeae0e24bd68653f92c6f276a608bf592b660b63d7?context=explore).
 
-## :hourglass_flowing_sand: Code is coming soon!
+First, clone this repository with submodule xgutils. [xgutils](https://github.com/QhelDIV/xgutils.git) contains various useful system/numpy/pytorch/3D rendering related functions that will be used by ShapeFormer.
+
+      git clone --recursive https://github.com/QhelDIV/ShapeFormer.git
+
+Then, create a conda environment with the yaml file.
+
+      conda env create -f environment.yaml
+      conda activate shapeformer
+
+Next, we need to install torch_scatter through this command
+
+      pip install torch-scatter -f https://data.pyg.org/whl/torch-1.7.0+cu101.html
+
+## Demo
+
+First, download the pretrained model from this google drive [URL](https://drive.google.com/file/d/1HUbI45KmXCDJv-YVYxRj-oSPCp0D0xLh/view?usp=sharing) and extract the content to experiments/
+
+
+## Dataset
+
+We use the dataset from [IMNet](https://github.com/czq142857/IM-NET#datasets-and-pre-trained-weights), which is obtained from [HSP](https://github.com/chaene/hsp).
+
+The dataset we adopted is a downsampled version (64^3) from these dataset (which is 256 resolution).
+Please download our processed dataset from this google drive [URL](https://drive.google.com/file/d/1HUbI45KmXCDJv-YVYxRj-oSPCp0D0xLh/view?usp=sharing).
+
+To use the full resolution dataset, please first download the original IMNet and HSP datasets, and run the `make_imnet_dataset` function in `shapeformer/data/imnet_datasets/imnet_datasets.py`
+
+## Usage
+
+
+First, train VQDIF-16 with 
+
+      python -m shapeformer.trainer --opts configs/vqdif/shapenet_res16.yaml --gpu 0
+
+After VQDIF is trained, train ShapeFormer with
+
+      python -m shapeformer.trainer --opts configs/shapeformer/shapenet_scale.yaml --gpu 0
+
+For testing, you just need to append `--mode test` to the above commands.
+And if you only want to run callbacks (such as visualization/generation), set the mode to `run`
+
+There is a visualization callback for both VQDIF and ShapeFormer, who will call the model to obtain 3D meshes and render them to images. The results will be save in `experiments/$exp_name$/results/$callback_name$/`
+The callbacks will be automatically called during training and testing, so to get the generation results you just need to test the model.
+
+### Multi-GPU
+Notice that to use multiple GPUs, just specify the GPU ids. For example `--gpu 0 1 2 4` is to use the 0th, 1st, 2nd, 4th GPU for training. Inside the program their indices will be mapped to 0 1 2 3 for simplicity.
+
+## :hourglass_flowing_sand: What's next?
 - [x] Core model code is released, please check core_code/README.md
-Also, there is a personal utility library called [xgutils](https://github.com/QhelDIV/xgutils). The ShapeFormer project has used many of its functions, please also install that library to use ShapeFormer.
-- [ ] Release complete code (June 16th update: We will release the full code, data and pretrained model in the next two days, please stay tuned!)
+- [x] Release complete code 
 - [ ] Add Google Colab
 
 ## :notebook_with_decorative_cover: Citation
