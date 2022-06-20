@@ -5,8 +5,6 @@ import copy
 import torch.nn.functional as F
 from torch.utils.data.dataloader import DataLoader
 
-from shapeformer.data.dataloader import *
-
 from shapeformer import data
 from xgutils import *
 from xgutils.vis import npfvis
