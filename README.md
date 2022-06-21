@@ -4,7 +4,7 @@
 
 https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-bd53-8662ebd669fe.mp4
 
-### [Project Page](https://shapeformer.github.io/) | [Paper (ArXiv)](https://arxiv.org/abs/2201.10326)
+### [Project Page](https://shapeformer.github.io/) | [Paper (ArXiv)](https://arxiv.org/abs/2201.10326) | [Twitter thread](https://twitter.com/yan_xg/status/1539108339422212096)
 <!-- | [Pre-trained Models](https://www.dropbox.com/s/we886b1fqf2qyrs/ckpts_ICT.zip?dl=0) :fire: |  -->
 
 **This repository is the official pytorch implementation of our paper, *ShapeFormer: Transformer-based Shape Completion via Sparse Representation*.**
