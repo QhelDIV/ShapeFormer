@@ -43,7 +43,7 @@ Next, we need to install torch_scatter through this command
 
 ## Demo
 
-First, download the pretrained model from this google drive [URL](https://drive.google.com/file/d/1FqrUSN4mMAENJxM14PFyILMF5vfeO3Yy/view?usp=sharing) and extract the content to experiments/
+First, download the pretrained model from this google drive [URL](https://drive.google.com/file/d/1IF7FgmoUnKzGCkAj-iIH8otF3gg_D1ff/view?usp=sharing) and extract the content to experiments/
 
 Then run the following command to test VQDIF. The results are in `experiments/demo_vqdif/results`
 
