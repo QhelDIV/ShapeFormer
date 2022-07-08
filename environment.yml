@@ -43,6 +43,7 @@ dependencies:
   - plyfile>=0.7
 # rendering, image and video processing
   - ffmpeg
+  - libiconv
   - pillow=5.3.0
   - fresnel
   - imageio=2.4.1
