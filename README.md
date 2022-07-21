@@ -19,7 +19,8 @@ https://user-images.githubusercontent.com/5100481/150949433-40d84ed1-0a8d-4ae4-b
 
 ## :hourglass_flowing_sand: UPDATES
 - [x] Core model code is released, please check core_code/README.md
-- [x] **The complete code is released! Please have a try!**
+- [x] The complete code is released! Please have a try!
+- [x] (DFAUST) The data preprocess code for D-FAUST human shape is released!
 - [ ] Add Google Colab
 
 ## Installation
@@ -62,6 +63,16 @@ Please download our processed dataset from this google drive [URL](https://drive
 And then extract the data to `datasets/IMNet2_64/`.
 
 To use the full resolution dataset, please first download the original IMNet and HSP datasets, and run the `make_imnet_dataset` function in `shapeformer/data/imnet_datasets/imnet_datasets.py`
+
+### D-FAUST Human Dataset
+We also provide the scripts for process the D-FAUST human shapes. 
+First, download the official D-FAUST dataset from this [link](https://dfaust.is.tuebingen.mpg.de/download.php) and extract to `datasets/DFAUST`
+Then, execute the following lines to generate obj files and generate sdf samples for the human meshes.
+
+      cd shapeformer/data/dfaust_datasets/datagen
+      python generate_dfaust_obj_runfile.py
+      bash generate_dfaust_obj_all.sh
+      python generate_dfaust_sdf_samples.py
 
 ## Usage
 
