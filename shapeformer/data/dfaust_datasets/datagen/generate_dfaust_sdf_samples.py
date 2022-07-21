@@ -3,7 +3,6 @@ import torch
 import sklearn
 import numpy as np
 from torch.utils.data import DataLoader, Dataset
-from xgutils import *
 import scipy
 import h5py
 import time
@@ -11,6 +10,12 @@ import glob
 import igl
 import os
 import traceback
+
+import sys
+sys.path.append("../../../../")
+from xgutils import *
+
+from config import DFAUST_dir
 
 #resolution = gt
 version = f"v1"
@@ -60,7 +65,7 @@ def generate_dataitem(shape_path, selem_size=3):
     Xbd  = geoutil.sampleMesh(vert, face, 65536)
     
     return Xbd, Ytg
-def voxelize_dfaust_shape(shape_path, selem_size=0):
+def generate_dfaust_shape_sdf_samples(shape_path, selem_size=0):
     try:
         shape_pn   = ".".join(shape_path.split(".")[:-1])
         #out_path   = shape_pn + f"_{version}.npy"
@@ -80,16 +85,14 @@ def voxelize_dfaust_shape(shape_path, selem_size=0):
         return 1
     return 0
 
-def voxelize_dfaust(data_root="/studio/datasets/DFAUST/data/"):
+def generate_dfaust_sdf_samples(data_root=f"{DFAUST_dir}/data/"):
     shapes = glob.glob( os.path.join(data_root, "*/*.obj") )
     #shapes = shapes[:40]
     print("num of shapes", len(shapes))
-    #print(shapes)
-    #for shape_dir in sysutil.progbar(shape_dirs):
-    #    print(shape_dir)
-    #    voxelize_partnet_shape(shape_dir)
-    
-    return_codes = sysutil.parallelMap(voxelize_dfaust_shape, [shapes], zippedIn=False)
-    np.save(f"/studio/datasets/DFAUST/voxelization_failure_code.npy",return_codes)
+    return_codes = sysutil.parallelMap(generate_dfaust_shape_sdf_samples, [shapes], zippedIn=False)
+    np.save(f"{DFAUST_dir}/voxelization_failure_code.npy",return_codes)
     print("Percentage of failure:", np.array(return_codes).sum()/len(shapes))
     print("Return code:", return_codes)
+
+if __name__ == "__main__":
+    generate_dfaust_sdf_samples()

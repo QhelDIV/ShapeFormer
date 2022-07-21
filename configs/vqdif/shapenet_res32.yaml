@@ -1,0 +1,100 @@
+project_name: shapeformer
+expr_name: vqdif/shapenet_res32
+pltrainer_opt:
+  resume_from: 'latest' 
+  gpus: [4] # can be [list of int],[int],or[str]
+  logger: wandb
+  logger_kwargs:
+    mode: "disabled" # online, offline, disabled
+    tags: ["VQDIF", "shapenet"]
+    notes: "Train VQDIF on all categories of the imnet dataset (a subset of ShapeNet)."
+    #id: "0"
+  auto_lr_find: False
+  check_val_every_n_epoch: 5
+  max_epochs: 300
+pl_model_opt:
+  class: shapeformer.models.vqdif.vqdif.VQDIF
+  kwargs:
+    encoder_opt:
+      class: shapeformer.models.vqdif.enc.LocalPoolPointnet
+      kwargs:
+        hidden_dim: 32
+        plane_type: 'grid'
+        grid_resolution: 64
+        c_dim: 32
+        downsampler: True
+        downsampler_kwargs: 
+          in_channels: 32
+          downsample_steps: &updown_steps 1
+    quantizer_opt:
+      class: shapeformer.models.vqdif.quantizer.Quantizer
+      kwargs:
+        vocab_size: 4096
+        n_embd: &vq_dim 64
+    vq_beta: .001
+    decoder_opt:
+      class: shapeformer.models.vqdif.dec.LocalDecoder
+      kwargs:
+        sample_mode: bilinear # bilinear / nearest
+        hidden_size: 32
+        c_dim: 32
+
+        unet3d: True
+        unet3d_kwargs:
+          num_levels: 3
+          f_maps: *vq_dim
+          in_channels: *vq_dim
+          out_channels: *vq_dim
+        upsampler: True
+        upsampler_kwargs:
+          in_channels: *vq_dim
+          upsampler_steps: *updown_steps
+    optim_opt:
+      lr: .0001
+      scheduler: 'StepLR'
+      step_size: 10
+      gamma: .9
+datamodule_opt:
+  class: shapeformer.datamodule.DataModule
+  kwargs:
+    num_workers: 4
+    batch_size: 4
+    test_batch_size: 2
+    trainset_opt: &dset_opt
+      class: shapeformer.data.imnet_datasets.imnet_datasets.Imnet2LowResDataset
+      kwargs:
+        dataset: IMNet2_64
+        cate: "all" # 0plane, 1bench, 2cabinet, 3car, 4tv, 5chair, 6lamp, 7loudspeaker, 8gun, 9sofa, 10table, 11loudspeaker, 12vessel
+        boundary_N: 32768
+        weighted_sampling: False
+        grid_dim: 64
+        target_N: 8192
+        duplicate_size: 1
+        partial_opt: # intersect the point cloud with a random ball. Has no effect for VQDIF training.
+          class: shapeformer.data.partial.BallSelector
+          kwargs: {radius: .4, context_N: 4096}
+    testset_opt:
+      class: shapeformer.data.imnet_datasets.imnet_datasets.Imnet2LowResDataset
+      kwargs:
+        dataset: IMNet2_64
+        boundary_N: 32768
+        cate: "all" # 0plane, 1bench, 2cabinet, 3car, 4tv, 5chair, 6lamp, 7cab, 8gun, 9sofa, 10table, 11?, 12vessel
+        target_N: -1
+        grid_dim: 64
+        partial_opt:
+          class: shapeformer.data.partial.BallSelector
+          kwargs: {radius: .4, context_N: 4096}
+callbacks:
+  vis_recon:
+    class: shapeformer.models.vqdif.vqdif.VisSparseRecon3D
+    kwargs:
+      max_length: 8192
+      every_n_epoch: 5
+      quant_grid_depth: 5
+      vocab_size: 4096
+      end_tokens: [32768,4096]
+      no_sanity_check: True
+      #load_compute: True
+      resolution: [256,256]
+      samples: 32
+      visual_indices: [709, 5371, 4661, 4569, 8531, 3859, 963,967,1175]
