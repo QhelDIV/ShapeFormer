@@ -96,6 +96,23 @@ ALso notice that in the configuration files batch sizes are set to very small so
 ### Multi-GPU
 Notice that to use multiple GPUs, just specify the GPU ids. For example `--gpu 0 1 2 4` is to use the 0th, 1st, 2nd, 4th GPU for training. Inside the program their indices will be mapped to 0 1 2 3 for simplicity.
 
+## Frequently Asked Questions
+
+*What is the meaning of the variables Xbd, Xtg, Ytg... ?*
+
+Here is a brief description of the variable names:
+
+> `tg` stands for `target`, which is the samples (probes) of the target occupancy fields.
+> `bd`, or `boundary` stands for the points sampled from the shape surface.
+> `ct` stands for `context`, which is the partial point cloud that we want to complete.
+> `X` stands for point coordinate.
+> `Y` stands for the occupancy value of the point coordinate.
+
+The `target` and `context` names come from the field of meta-learning.
+
+And more specifically for your question, the `Ytg` in the hdf5 file stands for the occupancy value of the probes `Xtg`.
+In the case of `IMNET2_64`, `Xtg` is the collection of the 64-grid coordinates, which has the shape of `(64**3, 3)` and `Ytg` is the corresponding occupancy value.
+
 
 ## :notebook_with_decorative_cover: Citation
 
