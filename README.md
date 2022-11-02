@@ -110,8 +110,9 @@ Here is a brief description of the variable names:
 
 The `target` and `context` names come from the field of meta-learning.
 
-And more specifically for your question, the `Ytg` in the hdf5 file stands for the occupancy value of the probes `Xtg`.
+Notice that the `Ytg` in the hdf5 file stands for the occupancy value of the probes `Xtg`.
 In the case of `IMNET2_64`, `Xtg` is the collection of the 64-grid coordinates, which has the shape of `(64**3, 3)` and `Ytg` is the corresponding occupancy value.
+It is easy to visualize the shape with marching cubes if `Xtg` is points of a grid. But you can use arbitrarily sampled points as `Xtg` and `Ytg` for training.
 
 
 ## :notebook_with_decorative_cover: Citation
