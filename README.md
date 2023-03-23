@@ -114,6 +114,9 @@ Notice that the `Ytg` in the hdf5 file stands for the occupancy value of the pro
 In the case of `IMNET2_64`, `Xtg` is the collection of the 64-grid coordinates, which has the shape of `(64**3, 3)` and `Ytg` is the corresponding occupancy value.
 It is easy to visualize the shape with marching cubes if `Xtg` is points of a grid. But you can use arbitrarily sampled points as `Xtg` and `Ytg` for training.
 
+*How can I evaluate the ShapeFormer?*
+
+[Here](https://drive.google.com/file/d/1KjbFUuxTWrZ97Cz8ZlFoOB3gDGCyuwt-/view?usp=share_link) is an incomplete collection of evaluation code of ShapeFormer. 
 
 ## :notebook_with_decorative_cover: Citation
 
