@@ -33,7 +33,7 @@ First, clone this repository with submodule xgutils. [xgutils](https://github.co
 
       git clone --recursive https://github.com/QhelDIV/ShapeFormer.git
 
-Then, create a conda environment with the yaml file.
+Then, create a conda environment with the yaml file. (Sometimes the conda is very slow to solve the complex dependencies of this environment, so [mamba](https://mamba.readthedocs.io/en/latest/index.html) is highly recommended)
 
       conda env create -f environment.yaml
       conda activate shapeformer
