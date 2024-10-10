@@ -31,16 +31,16 @@ Or build the docker environment by yourself with the setup files in the `Docker`
 
 First, clone this repository with submodule xgutils. [xgutils](https://github.com/QhelDIV/xgutils.git) contains various useful system/numpy/pytorch/3D rendering related functions that will be used by ShapeFormer.
 
-      git clone --recursive https://github.com/QhelDIV/ShapeFormer.git
+    git clone --recursive https://github.com/QhelDIV/ShapeFormer.git
 
 Then, create a conda environment with the yaml file. (Sometimes the conda is very slow to solve the complex dependencies of this environment, so [mamba](https://mamba.readthedocs.io/en/latest/index.html) is highly recommended)
 
-      conda env create -f environment.yaml
-      conda activate shapeformer
+    conda env create -f environment.yaml
+    conda activate shapeformer
 
 Next, we need to install torch_scatter through this command
 
-      pip install torch-scatter==2.0.7 -f https://data.pyg.org/whl/torch-1.7.0+cu101.html
+    pip install torch-scatter==2.0.7 -f https://data.pyg.org/whl/torch-1.7.0+cu101.html
 
 ## Demo
 
@@ -48,11 +48,11 @@ First, download the pretrained model from this google drive [URL](https://drive.
 
 Then run the following command to test VQDIF. The results are in `experiments/demo_vqdif/results`
 
-      python -m shapeformer.trainer --opts configs/demo/demo_vqdif.yaml --gpu 0 --mode "run"
+    python -m shapeformer.trainer --opts configs/demo/demo_vqdif.yaml --gpu 0 --mode "run"
 
 Run the following command to test ShapeFormer for shape completion. The results are in `experiments/demo_shapeformer/results`
 
-      python -m shapeformer.trainer --opts configs/demo/demo_shapeformer.yaml --gpu 0 --mode "run"
+    python -m shapeformer.trainer --opts configs/demo/demo_shapeformer.yaml --gpu 0 --mode "run"
 
 ## Dataset
 
@@ -69,21 +69,21 @@ We also provide the scripts for process the D-FAUST human shapes.
 First, download the official D-FAUST dataset from this [link](https://dfaust.is.tuebingen.mpg.de/download.php) and extract to `datasets/DFAUST`
 Then, execute the following lines to generate obj files and generate sdf samples for the human meshes.
 
-      cd shapeformer/data/dfaust_datasets/datagen
-      python generate_dfaust_obj_runfile.py
-      bash generate_dfaust_obj_all.sh
-      python generate_dfaust_sdf_samples.py
+    cd shapeformer/data/dfaust_datasets/datagen
+    python generate_dfaust_obj_runfile.py
+    bash generate_dfaust_obj_all.sh
+    python generate_dfaust_sdf_samples.py
 
 ## Usage
 
 
 First, train VQDIF-16 with 
 
-      python -m shapeformer.trainer --opts configs/vqdif/shapenet_res16.yaml --gpu 0
+    python -m shapeformer.trainer --opts configs/vqdif/shapenet_res16.yaml --gpu 0
 
 After VQDIF is trained, train ShapeFormer with
 
-      python -m shapeformer.trainer --opts configs/shapeformer/shapenet_scale.yaml --gpu 0
+    python -m shapeformer.trainer --opts configs/shapeformer/shapenet_scale.yaml --gpu 0
 
 For testing, you just need to append `--mode test` to the above commands.
 And if you only want to run callbacks (such as visualization/generation), set the mode to `run`
