@@ -44,7 +44,7 @@ Next, we need to install torch_scatter through this command
 
 ## Demo
 
-First, download the pretrained model from this google drive [URL](https://drive.google.com/file/d/1QmR27nHcLmzFfyvxs3NH7pzUmbVATt4f/view?usp=sharing) and extract the content to experiments/
+First, download the pretrained model from this [huggingface link](https://huggingface.co/datasets/yanxg/ShapeformerData/blob/main/pretrained.tar.gz) ~~google drive [URL](https://drive.google.com/file/d/1QmR27nHcLmzFfyvxs3NH7pzUmbVATt4f/view?usp=sharing)~~ and extract the content to experiments/
 
 Then run the following command to test VQDIF. The results are in `experiments/demo_vqdif/results`
 
@@ -59,7 +59,7 @@ Run the following command to test ShapeFormer for shape completion. The results 
 We use the dataset from [IMNet](https://github.com/czq142857/IM-NET#datasets-and-pre-trained-weights), which is obtained from [HSP](https://github.com/chaene/hsp).
 
 The dataset we adopted is a downsampled version (64^3) from these dataset (which is 256 resolution).
-Please download our processed dataset from this google drive [URL](https://drive.google.com/file/d/1HUbI45KmXCDJv-YVYxRj-oSPCp0D0xLh/view?usp=sharing).
+Please download our processed dataset from [huggingface](https://huggingface.co/datasets/yanxg/ShapeformerData/resolve/main/IMNet2_64.tar.gz) ~~this google drive [URL](https://drive.google.com/file/d/1HUbI45KmXCDJv-YVYxRj-oSPCp0D0xLh/view?usp=sharing)~~.
 And then extract the data to `datasets/IMNet2_64/`.
 
 To use the full resolution dataset, please first download the original IMNet and HSP datasets, and run the `make_imnet_dataset` function in `shapeformer/data/imnet_datasets/imnet_datasets.py`
